@@ -1,0 +1,24 @@
+node('master') 
+{
+   stage('ContinousDownload')
+   {
+       git 'https://github.com/intelliqittrainings/maven.git'
+   }
+   stage('ContinousBuild')
+   {
+      sh 'mvn package'
+   }  
+    stage('ContinousDeployment')
+   {
+       sh '''scp /root/.jenkins/workspace/pipelineproject/webapp/target/webapp.war ubuntu@172.31.10.73:/var/lib/tomcat8/webapps/testapp.war'''
+   }
+   stage('ContinousTesting')
+   {
+      git 'https://github.com/selenium-saikrishna/FunctionalTesting.git'
+      sh 'java -jar /root/.jenkins/workspace/pipelineproject/testing.jar'
+   } 
+   stage('ContinousDelivery')
+   {
+       sh '''scp /root/.jenkins/workspace/pipelineproject/webapp/target/webapp.war ubuntu@172.31.44.107:/var/lib/tomcat8/webapps/testapp.war'''
+   }
+}
